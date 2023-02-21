@@ -43,7 +43,7 @@ fn create_td_payload() -> Vec<u8> {
     // TODO: TD could be more interesting
 
     let thing_description = Thing::builder("Example Thing")
-        .security(|builder| builder.no_sec().with_key("nosec_sc"))
+        .security(|builder| builder.no_sec().with_key("nosec_sc").required())
         .build()
         .expect("TD should be valid");
 

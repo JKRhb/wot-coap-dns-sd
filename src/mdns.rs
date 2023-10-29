@@ -19,7 +19,7 @@ fn create_td_service() -> ServiceInfo {
     let service_type = "_wot._udp.local.";
     let instance_name = "wot_coap_dns_sd";
     let host_ipv4 = local_ip_address.to_string();
-    let port = 5353;
+    let port = 5683;
     let mut properties = HashMap::new();
     properties.insert("td".to_string(), "/.well-known/wot".to_string());
     properties.insert("type".to_string(), "Thing".to_string());

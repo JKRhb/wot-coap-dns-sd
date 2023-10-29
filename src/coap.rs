@@ -57,8 +57,7 @@ fn handle_td_request(request: CoapRequest<SocketAddr>) -> Option<CoapResponse> {
         request,
         ResponseType::Content,
         Some(payload),
-        // TODO: Replace with application/td+json
-        Some(ContentFormat::ApplicationJSON),
+        Some(ContentFormat::ApplicationTdJson),
     )
 }
 

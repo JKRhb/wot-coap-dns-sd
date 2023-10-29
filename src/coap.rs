@@ -43,8 +43,6 @@ fn create_td_payload() -> Vec<u8> {
     // TODO: TD could be more interesting
 
     let thing_description = Thing::builder("Example Thing")
-        // TODO: Remove once https://github.com/sifis-home/wot-td/pull/101 has been included in a new wot-td release
-        .context("https://www.w3.org/2019/wot/td/v1")
         .security(|builder| builder.no_sec().with_key("nosec_sc").required())
         .build()
         .expect("TD should be valid");

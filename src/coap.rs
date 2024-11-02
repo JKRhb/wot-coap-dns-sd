@@ -3,8 +3,12 @@
 use coap::Server;
 use coap_lite::{CoapRequest, ContentFormat, MessageClass, RequestType as Method, ResponseType};
 use std::net::SocketAddr;
+use std::sync::LazyLock;
 use tokio::runtime::Runtime;
+use uuid::Uuid;
 use wot_td::Thing;
+
+static TD_UUID: LazyLock<uuid::Uuid> = LazyLock::new(Uuid::new_v4);
 
 pub(crate) fn create_coap_server() {
     let addr = "0.0.0.0:5683";
@@ -42,6 +46,7 @@ fn create_td_payload() -> Vec<u8> {
 
     let thing_description = Thing::builder("Example Thing")
         .security(|builder| builder.no_sec().with_key("nosec_sc").required())
+        .id(TD_UUID.urn().to_string())
         .build()
         .expect("TD should be valid");
 

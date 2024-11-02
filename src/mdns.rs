@@ -28,7 +28,7 @@ fn create_td_service() -> ServiceInfo {
     ServiceInfo::new(
         service_type,
         instance_name,
-        &host_ipv4,
+        "coap-dns-ds-example.local.",
         &host_ipv4,
         port,
         Some(properties),

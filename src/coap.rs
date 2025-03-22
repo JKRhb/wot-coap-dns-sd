@@ -2,10 +2,15 @@
 
 use coap::Server;
 use coap_lite::{CoapRequest, ContentFormat, MessageClass, RequestType as Method, ResponseType};
+use local_ip_address::local_ip;
+use rand::Rng;
 use std::net::SocketAddr;
 use std::sync::LazyLock;
 use tokio::runtime::Runtime;
 use uuid::Uuid;
+use wot_td::builder::{
+    BuildableHumanReadableInfo, BuildableInteractionAffordance, SpecializableDataSchema,
+};
 use wot_td::Thing;
 
 static TD_UUID: LazyLock<uuid::Uuid> = LazyLock::new(Uuid::new_v4);
@@ -37,16 +42,29 @@ fn handle_coap_request(request: Box<CoapRequest<SocketAddr>>) -> Box<CoapRequest
 fn handle_get_request(request: Box<CoapRequest<SocketAddr>>) -> Box<CoapRequest<SocketAddr>> {
     match request.get_path().as_str() {
         ".well-known/wot" => handle_td_request(request),
+        "temperature" => handle_temperature_request(request),
         _ => create_response(request, ResponseType::NotFound, None, None),
     }
 }
 
 fn create_td_payload() -> Vec<u8> {
     // TODO: TD could be more interesting
+    let local_ip_address = local_ip().expect("Should determine the local IP address.");
+
+    println!("{:}", local_ip_address);
 
     let thing_description = Thing::builder("Example Thing")
         .security(|builder| builder.no_sec().with_key("nosec_sc").required())
         .id(TD_UUID.urn().to_string())
+        .base("coap://127.0.0.1")
+        .finish_extend()
+        .property("temperature", |property_builder| {
+            property_builder
+                .title("Temperature")
+                .finish_extend_data_schema()
+                .integer()
+                .form(|form_builder| form_builder.href("/temperature"))
+        })
         .build()
         .expect("TD should be valid");
 
@@ -61,6 +79,20 @@ fn handle_td_request(request: Box<CoapRequest<SocketAddr>>) -> Box<CoapRequest<S
         ResponseType::Content,
         Some(payload),
         Some(ContentFormat::ApplicationTdJson),
+    )
+}
+
+fn handle_temperature_request(
+    request: Box<CoapRequest<SocketAddr>>,
+) -> Box<CoapRequest<SocketAddr>> {
+    let mut rng: rand::prelude::ThreadRng = rand::thread_rng();
+    let temperature: u32 = rng.gen_range(20..25);
+
+    create_response(
+        request,
+        ResponseType::Content,
+        Some(temperature.to_string().into_bytes()),
+        Some(ContentFormat::ApplicationJSON),
     )
 }
 
